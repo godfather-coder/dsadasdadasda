@@ -4,50 +4,51 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 import re
-from .customs.getListings import startBot
-from .customs.getInsideData import scrape_property_info
+# from .customs.getListings import startBot
+# from .customs.getInsideData import scrape_property_info
+from .customs.main import upload
 from .models import Listing
-from .customs.addListing import upload_listing_for_sale
-
-class StartBotApi(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-
-        try:
-            user = request.user
-            listing_data = request.data
-            token = listing_data.get('token')
-
-            if not token:
-                return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
-            if user.botStatus is True:
-                return Response({'message': 'Bot is already running.'}, status=400)
-            user.botStatus = True
-            user.save()
-            startBot(token, user)
-            return Response({'message': 'Bot is running.'}, status=200)
-        except Exception as e:
-            print(e)
-            return Response({'message': 'Something went wrong.'}, status=400)
-
-class EndBot(APIView):
-    permission_classes = [IsAuthenticated]
-    def post(self, request):
-        user = request.user
-        user.botStatus = False
-        user.save()
-
-        return Response({'message': 'ბოტი გამოირთო'}, status=201)
-
-
-class GetBotStatus(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        user = request.user
-
-        return Response(data={'status': user.botStatus}, status=200)
+# from .customs.addListing import upload_listing_for_sale
+#
+# class StartBotApi(APIView):
+#     permission_classes = [IsAuthenticated]
+#
+#     def post(self, request):
+#
+#         try:
+#             user = request.user
+#             listing_data = request.data
+#             token = listing_data.get('token')
+#
+#             if not token:
+#                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
+#             if user.botStatus is True:
+#                 return Response({'message': 'Bot is already running.'}, status=400)
+#             user.botStatus = True
+#             user.save()
+#             startBot(token, user)
+#             return Response({'message': 'Bot is running.'}, status=200)
+#         except Exception as e:
+#             print(e)
+#             return Response({'message': 'Something went wrong.'}, status=400)
+#
+# class EndBot(APIView):
+#     permission_classes = [IsAuthenticated]
+#     def post(self, request):
+#         user = request.user
+#         user.botStatus = False
+#         user.save()
+#
+#         return Response({'message': 'ბოტი გამოირთო'}, status=201)
+#
+#
+# class GetBotStatus(APIView):
+#     permission_classes = [IsAuthenticated]
+#
+#     def post(self, request):
+#         user = request.user
+#
+#         return Response(data={'status': user.botStatus}, status=200)
 
 
 class GetAllListings(APIView):
@@ -102,17 +103,18 @@ class SpecificListing(APIView):
                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
 
             if not urls:
-                return Response({'error': 'შეიყვანე URL-ი'}, status=402)
+                return Response({'error': 'შეიყვანე აიდი'}, status=402)
 
             urls = urls.split(',')
+
+            print(urls)
 
             for url in urls:
                 url = url.strip()
                 if Listing.objects.filter(listing_id=url, users=user).exists():
                     return Response({"msg": f"განცხადება {url} აიდით უკვე დევს"}, status=400)
 
-                data = scrape_property_info(url, user)
-                upload_listing_for_sale(data, token, user)
+            upload(urls, token)
 
             return Response({'message': 'ყველა განცხადება აიტვირთა!'}, status=200)
 
