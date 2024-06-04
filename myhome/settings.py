@@ -108,11 +108,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5175",
     "http://localhost:5174",
-    "https://f54a-87-253-53-94.ngrok-free.app",
-    "https://78a6-87-253-53-94.ngrok-free.app",
-    'https://07ca-95-104-87-205.ngrok-free.app',
-    'https://e50b-95-104-87-205.ngrok-free.app',
-    'https://homebot.netlify.app'
+    'http://myhome111.s3-website.eu-north-1.amazonaws.com'
 
 
 ]
