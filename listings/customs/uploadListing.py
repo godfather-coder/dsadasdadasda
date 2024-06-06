@@ -1,7 +1,6 @@
 import requests
 from io import BytesIO
 
-
 class AddListing:
     headers = {}
 
@@ -23,6 +22,9 @@ class AddListing:
         }
 
     def __init__(self):
+        self.signature = None
+        self.payload = None
+        self.head = None
         self.url = "https://api-statements.tnet.ge/v1/statements/create"
 
     def data(self, data1):
