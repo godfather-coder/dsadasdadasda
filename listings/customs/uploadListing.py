@@ -2,6 +2,7 @@ import requests
 from io import BytesIO
 
 class AddListing:
+
     headers = {}
 
     def setHeaders(self, token):
@@ -21,13 +22,17 @@ class AddListing:
             "Referrer-Policy": "strict-origin-when-cross-origin"
         }
 
+    print("fewfgef")
+
     def __init__(self):
         self.signature = None
         self.payload = None
         self.head = None
         self.url = "https://api-statements.tnet.ge/v1/statements/create"
 
+
     def data(self, data1):
+        print("fewfgef")
         data = {}
         if data1["deal_type_id"] ==1:
             data['can_exchanged'] = (None, 0)
@@ -44,6 +49,8 @@ class AddListing:
             "ka[owner_name]", "ka[street_number]", "en[comment]", "en[address]", "en[owner_name]", "ru[comment]",
             "ru[address]", "ru[owner_name]", "ru[street_number]"
         ]
+
+        print("fewfgef")
 
         # Include mandatory fields
         for key in keys_to_check:
@@ -69,19 +76,15 @@ class AddListing:
                 images.append(data1[key])
 
         image_urls = [url for url in images if url]
-        # data['deal_type_id'] = (None, '1')
-        print(data1['deal_type_id'])
+
         for i, image_url in enumerate(image_urls):
             image_id, uploaded_url = self.upload_image(image_url)
             if image_id and uploaded_url:
                 data[f"images[{i}][image_id]"] = (None, image_id)
                 data[f"images[{i}][url]"] = (None, uploaded_url)
-        print(data['deal_type_id'])
-        print(str(data['status_id'])+"statusi")
-        print(str(data1['status_id']) + "statusi data1Shi")
-        # if 1 not in data['deal_type_id']:
-        #     data['can_exchanged']=(None, 0)
+
         response = requests.post(self.url, headers=self.headers, files=data)
+
         print(response.json())
 
     def upload_image(self, image_url):
