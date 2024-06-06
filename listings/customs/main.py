@@ -15,7 +15,7 @@ decoded_payload_json = json.loads(decoded_payload)
 print(decoded_payload_json.get('data').get('phone'))
 print(decoded_payload_json.get('data').get('user_name'))
 
-exit(200)
+
 test = UrlFetcher()
 
 data = test.fetch_data(18266826)
@@ -29,7 +29,6 @@ convertedData = convert.convert_to_upload_format(
 
 uploader = AddListing()
 
-# token = ("eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9"
-#          ".eyJ2IjoiMSIsImlhdCI6MTcxNzAyNDYxNSwiZXhwaXJlc19hdCI6MTcxNzAyNTI3NSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzY0NTEzLCJ1c2VybmFtZSI6InRhcmllbGludmVzdEBnbWFpbC5jb20iLCJzZXNzaW9uX2lkIjoiYWJhNDU4YmU0YzkzYTA1ODE3NWQ2ODg3Y2Q2NjE5OThjYTVkYzAwZDI1MGY1NWVkNGViNmEyNjg4NWZhZjBhOWFhMTIxYzg4OTY5ZTI3ZmIyOWFiZDExN2Q3ZGM2MmYxNTJhYmQyNjcxZTQ5NWY4OTIwZDcxYmFlZTFmMzEwMDMiLCJsaXZvX3VzZXJfaWQiOjEwMTY4MDIxLCJ2ZW5kb29fdXNlcl9pZCI6bnVsbCwic3dvb3BfdXNlcl9pZCI6bnVsbCwiZ2VuZGVyX2lkIjoxLCJiaXJ0aF95ZWFyIjoxOTk4LCJiaXJ0aF9kYXRlIjpudWxsLCJwaG9uZSI6IjU5MTA4MjQ5MyIsInVzZXJfbmFtZSI6IlRhcmllbCIsInVzZXJfc3VybmFtZSI6IkludmVzdCIsInR5cGVfaWQiOjB9fQ.W77T4co19qaCg8zLt4gnvgRKJ8yL591aWzwVHDf5mWnKC1rot7ai5Kk3tKU_ORPHp3BYbGzUL3gXPCI2laqFVtOfxcqKtMcan-5dz2-dQjLyxSRw4od0b1SKTnoLv9JNjGon69K24iad1l6g5ygDhxTe-MPmY2kJt3Q7UXvxLBRZ74FhQISbSZVZ3tn6pZt-__poLZENRsnn0tbQX4FbZgl7bLjt5182v3ud_XW5R6i-dFPYd0AvQNOoe1FzzrkwOPdSbbw8DEIDDjTY-_gfU7wTNhVFwvm_0oHvsPvMoCFJ04-SIYfQqFp7GSjmkomHOlAiQDXXM2jP_iAJVw3zfg")
+
 uploader.setHeaders(token)
 print(uploader.data(convertedData))
