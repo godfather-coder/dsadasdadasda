@@ -4,7 +4,7 @@ class FormatData:
     def __init__(self):
         pass
 
-    def convert_to_upload_format(self, input_data, number):
+    def convert_to_upload_format(self, input_data, number,name):
         output_data = {}
 
         # Map simple fields
@@ -62,13 +62,13 @@ class FormatData:
         # Map multilingual fields
         output_data['ka[comment]'] = statement.get('comment')
         output_data['ka[address]'] = statement.get('address')
-        output_data['ka[owner_name]'] = statement.get('owner_name')
+        output_data['ka[owner_name]'] = name
         output_data['en[comment]'] = statement.get('comment')
         output_data['en[address]'] = statement.get('address')
-        output_data['en[owner_name]'] = statement.get('owner_name')
+        output_data['en[owner_name]'] = name
         output_data['ru[comment]'] = statement.get('comment')
         output_data['ru[address]'] = statement.get('address')
-        output_data['ru[owner_name]'] = statement.get('owner_name')
+        output_data['ru[owner_name]'] = name
 
 
         gallery = statement.get('gallery', [])
