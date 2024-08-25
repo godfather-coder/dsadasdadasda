@@ -7,6 +7,7 @@ import re
 # from .customs.getListings import startBot
 # from .customs.getInsideData import scrape_property_info
 from .customs.main import upload
+from .customs.ss.main import UploadOnSS
 from .models import Listing
 # from .customs.addListing import upload_listing_for_sale
 #
@@ -89,7 +90,7 @@ class DeleteAllListings(APIView):
 
         return Response({'message': 'All listings deleted successfully'}, status=200)
 
-class SpecificListing(APIView):
+class MyHomeListing(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -107,16 +108,48 @@ class SpecificListing(APIView):
 
             urls = urls.split(',')
 
-            print(urls)
+            for url in urls:
+                url = url.strip()
+                if Listing.objects.filter(listing_id=url, users=user).exists():
+                    return Response({"msg": f"განცხადება {url} აიდით უკვე დევს"}, status=400)
+
+            result = upload(urls, token, user)
+
+            return Response({'message': result}, status=200)
+
+        except Exception as e:
+            print(e)
+            return Response({'message': 'Something went wrong.'}, status=400)
+
+
+
+
+class SSListing(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = request.user
+            listing_data = request.data
+            token = listing_data.get('token')
+            urls = listing_data.get('url')
+
+            if not token:
+                return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
+
+            if not urls:
+                return Response({'error': 'შეიყვანე აიდი'}, status=402)
+
+            urls = urls.split(',')
 
             for url in urls:
                 url = url.strip()
                 if Listing.objects.filter(listing_id=url, users=user).exists():
                     return Response({"msg": f"განცხადება {url} აიდით უკვე დევს"}, status=400)
 
-            upload(urls, token)
+            result = UploadOnSS(urls, token, user)
 
-            return Response({'message': 'ყველა განცხადება აიტვირთა!'}, status=200)
+            return Response({'message': result}, status=200)
 
         except Exception as e:
             print(e)

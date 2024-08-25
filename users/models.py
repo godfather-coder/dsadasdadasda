@@ -31,7 +31,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=20, unique=True)
     email = models.EmailField(default="", max_length=254)
     botStatus = models.BooleanField(default=False)
-
+    total_listings = models.IntegerField(default=0)
+    failed_listings_myhome = models.JSONField(default=list)
+    failed_listings_ss = models.JSONField(default=list)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

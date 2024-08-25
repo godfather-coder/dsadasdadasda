@@ -1,6 +1,6 @@
 import requests
 from io import BytesIO
-
+import json
 class AddListing:
 
     headers = {}
@@ -22,7 +22,6 @@ class AddListing:
             "Referrer-Policy": "strict-origin-when-cross-origin"
         }
 
-    print("fewfgef")
 
     def __init__(self):
         self.signature = None
@@ -32,7 +31,6 @@ class AddListing:
 
 
     def data(self, data1):
-        print("fewfgef")
         data = {}
         if data1["deal_type_id"] ==1:
             data['can_exchanged'] = (None, 0)
@@ -84,8 +82,12 @@ class AddListing:
                 data[f"images[{i}][url]"] = (None, uploaded_url)
 
         response = requests.post(self.url, headers=self.headers, files=data)
-
         print(response.json())
+
+        try:
+            return response.status_code
+        except json.JSONDecodeError:
+            return "შეცდომა"
 
     def upload_image(self, image_url):
         try:
