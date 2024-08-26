@@ -1,6 +1,9 @@
+import time
+
 import requests
 from io import BytesIO
 import json
+import threading
 class AddListing:
 
     headers = {}
@@ -29,13 +32,11 @@ class AddListing:
         self.head = None
         self.url = "https://api-statements.tnet.ge/v1/statements/create"
 
-
     def data(self, data1):
         data = {}
-        if data1["deal_type_id"] ==1:
+        if data1["deal_type_id"] == 1:
             data['can_exchanged'] = (None, 0)
-        # if data1["deal_type_id"] != 7:
-        #     data['build_year_id'] = (None, data1["build_year_id"])
+
         keys_to_check = [
             "real_estate_type_id", "deal_type_id", "city_id", "street_id", "district_id", "urban_id", "rs_code",
             "appear_rs_code", "longitude", "latitude", "duration_id", "status_id", "build_year_id", "project_type_id",
@@ -48,25 +49,18 @@ class AddListing:
             "ru[address]", "ru[owner_name]", "ru[street_number]"
         ]
 
-        print("fewfgef")
-
-        # Include mandatory fields
         for key in keys_to_check:
             value = data1.get(key)
             if value is not None:
-                data[key] = (None, str(value))  # Convert value to string
+                data[key] = (None, str(value))
+
         for i in data1.keys():
             if i.startswith("parameters"):
                 data[i] = (None, str(data1[i]))
-        # Add parameters to the data dictionary
-        # parameters = [
-        #     2, 3, 1, 6, 8, 24, 25, 47, 11, 26, 32, 34, 35, 9, 40, 13, 15, 5, 7, 12, 10, 43, 44, 45, 46, 19, 20, 4, 18,
-        #     17, 16, 36, 51, 52, 55
-        # ]
-        # for i, param in enumerate(parameters):
-        #     data[f"parameters[{i}]"] = (None, str(param))
-        # Add websites
+
         data['websites[0]'] = (None, '2')
+
+
 
         images = []
         for key in data1.keys():
@@ -75,11 +69,30 @@ class AddListing:
 
         image_urls = [url for url in images if url]
 
-        for i, image_url in enumerate(image_urls):
+        # Using threading to upload images concurrently
+        threads = []
+        results = {}
+
+        def upload_and_store(image_url, index):
             image_id, uploaded_url = self.upload_image(image_url)
             if image_id and uploaded_url:
-                data[f"images[{i}][image_id]"] = (None, image_id)
-                data[f"images[{i}][url]"] = (None, uploaded_url)
+                results[index] = {
+                    f"images[{index}][image_id]": (None, image_id),
+                    f"images[{index}][url]": (None, uploaded_url)
+                }
+
+        for i, image_url in enumerate(image_urls):
+            thread = threading.Thread(target=upload_and_store, args=(image_url, i))
+            threads.append(thread)
+            thread.start()
+
+        # Wait for all threads to finish
+        for thread in threads:
+            thread.join()
+
+        # Add uploaded image data to the main data dictionary
+        for index in results:
+            data.update(results[index])
 
         response = requests.post(self.url, headers=self.headers, files=data)
         print(response.json())
@@ -91,20 +104,18 @@ class AddListing:
 
     def upload_image(self, image_url):
         try:
-            # Step 1: Fetch the Image from the URL
             response = requests.get(image_url)
-            response.raise_for_status()  # Raise an exception for 4xx/5xx status codes
+            response.raise_for_status()
             image_data = response.content
 
-            # Step 2: Convert the Image into the Required Format
             image_file = BytesIO(image_data)
-            image_file.name = "image.jpg"  # provide a filename for the file-like object
+            image_file.name = "image.jpg"
 
             # Step 3: Send the Image Data
             upload_url = "https://api-statements.tnet.ge/v1/statements/upload-image"
 
             files = {
-                'image': (image_file.name, image_file, 'image/jpeg')  # adjust the content type if needed
+                'image': (image_file.name, image_file, 'image/jpeg')
             }
 
             response = requests.post(upload_url, headers=self.headers, files=files)

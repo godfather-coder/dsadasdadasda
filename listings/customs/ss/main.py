@@ -129,7 +129,7 @@ def UploadOnSS(ids, token, user):
                 except:
                     application_data1['application']['totalArea'] = application_data.get('totalArea', 0)
 
-            print("test")
+
 
             applicationIdDr = api_client.create_draft(application_data1['application'])
 
@@ -151,7 +151,6 @@ def UploadOnSS(ids, token, user):
                     "orderNo": 0,
                     "imageRotation": 0
                 })
-            print("4")
             application_data1['paidServices'] = {
                 "isCreate": True,
                 "items": [
@@ -164,13 +163,13 @@ def UploadOnSS(ids, token, user):
                     }
                 ]
             }
-            print("3")
             application_data1['application']["images"] = upl_imag_arr
             application_data1['application']['realEstateApplicationId'] = applicationIdDr['applicationId']
-            print("2")
             api = PaidServiceAPI(token)
-            response = api.create_application(application_data1)
 
+
+            response = api.create_application(application_data1)
+            print(application_data1)
             if response == 200:
                 result.append("განცხადება " + singleId + " წარმატებით დაიდო")
                 successful_uploads += 1

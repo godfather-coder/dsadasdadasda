@@ -1,48 +1,127 @@
-import requests
+def map_payload(first_site_data):
+    # Define a mapping between the two website's fields
+    field_mapping = {
+        "real_estate_type_id": "realEstateTypeId",
+        "deal_type_id": "realEstateDealTypeId",
+        "city_id": "cityId",
+        "street_id": "streetId",
+        "total_price": "price",
+        "square_price": "unitPrice",
+        "currency_id": "currencyId",
+        "ka[comment]": "descriptionGe",
+        "en[comment]": "descriptionEn",
+        "ru[comment]": "descriptionRu",
+        "floor": "floor",
+        "total_floors": "floors",
+        "balcony_area": "balconyLoggia",
+        "living_room_area": "kitchenArea",
+        "area": "totalArea",
+        "bedroom_type_id": "bedrooms",
+        "condition_id": "state",
+        "heating_type_id": "heating",
+        "hot_water_type_id": "hotWater",
+        "ka[owner_name]":"contactPerson",
+        "status_id": "status",
+        "ka[address]": "streetNumber",
+        "price_type_id":"priceType",
+        "bathroom_type_id": "toilet",
+        "room_type_id": "rooms",
+        "project_type_id": "project",
+        "urban_id": "subdistrictId",
+        "district_id": "districtId",
 
-# Define the URL
-url = "https://api3.myhome.ge/api/ka/user/payments/pay"
+        # Add more mappings as needed
+    }
 
-# Define the payload
-payload = {
-    "action": "payProduct",
-    "amount": 0.1,
-    "pay_with_card": 0,
-    "payment_method": "1",
-    "pcount": 1,
-    "pr_ids": [19064775],
-    "return_url": "http://example.com",
-    "pay_with": None,
-    "user_card_id": None
+    # Create the payload for the second website
+    second_site_payload = {}
+
+    for key, value in first_site_data.items():
+        if key in field_mapping:
+            second_site_payload[field_mapping[key]] = value
+        elif key.startswith("parameters["):
+            # Example handling for array parameters
+            param_index = int(key.replace("parameters[", "").replace("]", ""))
+            second_site_payload.setdefault("parameters", [])[param_index] = value
+
+    # Handle boolean fields explicitly
+    boolean_fields = [
+        "hasRemoteViewing", "isForUkraine", "isPetFriendly", "airConditioning",
+        "balcony", "basement", "cableTelevision", "drinkingWater", "electricity",
+        "elevator", "fridge", "furniture", "garage", "glazedWindows", "heating",
+        "hotWater", "internet", "ironDoor", "lastFloor", "naturalGas", "securityAlarm",
+        "sewage", "storage", "telephone", "tv", "washingMachine", "water", "wiFi",
+        "withPool", "viewOnTheYard", "viewOnTheStreet", "comfortable", "light"
+    ]
+
+    for field in boolean_fields:
+        second_site_payload[field] = False  # Default to False or adjust logic as needed
+
+    return second_site_payload
+
+
+# Example usage with the first website's data:
+first_site_data = {
+    "real_estate_type_id": "1",
+    "deal_type_id": "1",
+    "city_id": "1",
+    "street_id": "3138",
+    "district_id": "4",
+    "urban_id": "47",
+    "rs_code": "",
+    "appear_rs_code": "1",
+    "longitude": "44.754554",
+    "latitude": "41.725072",
+    "duration_id": "1",
+    "status_id": "1",
+    "build_year_id": "1",
+    "project_type_id": "3",
+    "room_type_id": "5",
+    "bedroom_type_id": "3",
+    "bathroom_type_id": "2",
+    "floor": "2",
+    "total_floors": "22",
+    "height": "2",
+    "balconies": "1",
+    "balcony_area": "10",
+    "heating_type_id": "2",
+    "parking_type_id": "4",
+    "hot_water_type_id": "4",
+    "material_type_id": "4",
+    "condition_id": "3",
+    "living_room_area": "22",
+    "loggia_area": "11",
+    "porch_area": "11",
+    "storeroom_area": "11",
+    "swimming_pool_type_id": "1",
+    "living_room_type_id": "3",
+    "storeroom_type_id": "9",
+    "area": "222",
+    "area_type_id": "1",
+    "price_type_id": "3",
+    "total_price": "1111",
+    "square_price": "5",
+    "currency_id": "1",
+    "can_exchanged": "0",
+    "hidden_owner_name": "Tbilisi",
+    "hidden_owner_phone_number": "598757596",
+    "hidden_owner_comment": "qwfwqwffwqwf",
+    "ka[comment]":"wefgwef",
+    "ka[address]":"ალექსანდრე ყაზბეგის გამზირი",
+    "ka[owner_name]": "papuna",
+    'ka[street_number]': "22",
+    "en[comment]":"ewffefwe",
+    "en[address]":"ალექსანდრე ყაზბეგის გამზირი",
+    "en[owner_name]": "Kutaisi",
+    "en[street_number]": "",
+    "ru[comment]": "qwfqfqfqwf",
+    "ru[address]": "ალექსანდრე ყაზბეგის გამზირი",
+    "ru[owner_name]": "Kutaisi"
+
+
+
+
 }
 
-# Define the headers
-headers = {
-    "accept": "application/json, text/plain, */*",
-    "accept-encoding": "gzip, deflate, br, zstd",
-    "accept-language": "en-US,en;q=0.9,ru;q=0.8,ka;q=0.7",
-    "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ2IjoiMSIsImlhdCI6MTcyNDYwMDk1NSwiZXhwaXJlc19hdCI6MTcyNDYwMTYxNSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzY0NTEzLCJ1c2VybmFtZSI6InRhcmllbGludmVzdEBnbWFpbC5jb20iLCJzZXNzaW9uX2lkIjoiZDYwZjMyMDZkMzUyYjA2NDc3MWU5NWIwYmM1MGUxYjMwODA0Y2MzOWU0ZTRlYjVkZjE5YTg3YTk5NWM5YzQ2ZTBiZjE4ZGY5NTdjNGM0MjNlY2NiNDZlMzc2ZjY2ZjA4NTVjZTM1ZGRlNjNmMzkxYWQwM2YyYjkxYmZjZTJmYmQiLCJsaXZvX3VzZXJfaWQiOjEwMTY4MDIxLCJ2ZW5kb29fdXNlcl9pZCI6bnVsbCwic3dvb3BfdXNlcl9pZCI6bnVsbCwiZ2VuZGVyX2lkIjoxLCJiaXJ0aF95ZWFyIjoxOTk4LCJiaXJ0aF9kYXRlIjpudWxsLCJwaG9uZSI6IjU5MTA4MjQ5MyIsInVzZXJfbmFtZSI6IlRhcmllbCIsInVzZXJfc3VybmFtZSI6IkludmVzdCIsInR5cGVfaWQiOjB9fQ.0ipwFTfxE3HMVwbfkCfcKtDjpMIlBhso7-eBcFOh3l-Crl11FupuQ-PXciTReYUFWhv9jvwEXLDKTOm3OU3zMUcryLSSVUG5-P59LHHVW3z7rcacCJEVoxrTleJkIeFu8lmXKHp8YwxCzozdnA2SUyPXlO9mqmX6QZsMozIPsWTQyg_71xRJvF5w1KunIf-VmXsiHuz4yO9_i0YklmzR5Tt6W-rlTz7FRU0Hw9MaunJ7TX_txHU56-fS4VDC1d5ykbYjLIAbSLhvEn_QdEdN1KCatlvQB22F-maQm7-dXim_2cXzGHUyjDC4jMiAfXYfip8gjttm1iLI_Bv8-tgsAg",
-    "content-type": "application/json",
-    "origin": "https://www.myhome.ge",
-    "referer": "https://www.myhome.ge/",
-    "sec-ch-ua": "\"Not)A;Brand\";v=\"99\", \"Google Chrome\";v=\"127\", \"Chromium\";v=\"127\"",
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": "\"Windows\"",
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-site",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
-}
-
-# Include the cookies from your browser session
-cookies = {
-    'cookie_name': 'cookie_value'  # Replace with actual cookie name and value
-}
-
-# Make the POST request with a session
-session = requests.Session()
-response = session.post(url, json=payload, headers=headers, cookies=cookies)
-
-# Print the response
-print(response.status_code)
-print(response.text)
+second_site_payload = map_payload(first_site_data)
+print(second_site_payload)

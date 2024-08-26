@@ -34,13 +34,14 @@ def upload(ids, token, user):
             response = uploader.data(convertedData)
 
             if response == 200:
-                return ("განცხადება " + singleId + " წარმატებით დაიდო", singleId, True)
+                print("აიტვირთა")
+                return "განცხადება " + singleId + " წარმატებით დაიდო", singleId, True
             else:
-                return ("შეცდომა აიდი " + singleId + "-ის დადებისას", singleId, False)
+                return "შეცდომა აიდი " + singleId + "-ის დადებისას", singleId, False
         except Exception as e:
-            return ("შეცდომა აიდი " + singleId + "-ის დადებისას", singleId, False)
+            return "შეცდომა აიდი " + singleId + "-ის დადებისას", singleId, False
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         future_to_id = {executor.submit(process_single_id, singleId): singleId for singleId in ids}
 
         for future in as_completed(future_to_id):
@@ -50,8 +51,6 @@ def upload(ids, token, user):
                 successful_uploads += 1
             else:
                 failed_uploads.append(singleId)
-            # Optional: Sleep 2 seconds before starting the next task
-            time.sleep(2)
 
     with transaction.atomic():
         user.total_listings += successful_uploads
