@@ -1,4 +1,5 @@
 import json
+import time
 
 from django.db import transaction
 
@@ -9,7 +10,7 @@ from .deleteDraft import DeleteDraft
 from .getOrderSs import WebDataExtractor
 from .ssImage import ImageUploader
 from .utiles import Utiles
-
+from .jwt import JWTExtractor
 
 def UploadOnSS(ids, token, user):
     result = []
@@ -21,8 +22,11 @@ def UploadOnSS(ids, token, user):
             delte.delete_draft()
             url = "https://home.ss.ge/ka/udzravi-qoneba/" + singleId
             extractor = WebDataExtractor(url)
-            api_client = RealEstateClient(token)
+            jwtextractor = JWTExtractor()
 
+            userInfo = jwtextractor.extract_payload("eyJhbGciOiJSUzI1NiIsImtpZCI6IkEzMTIxOUJCRUNCNTkyNkNEOTEzMzJDMkIwNTMzMEJERENFNkRBODJSUzI1NiIsInR5cCI6ImF0K2p3dCIsIng1dCI6Im94SVp1LXkxa216WkV6TENzRk13dmR6bTJvSSJ9.eyJuYmYiOjE3MjQ0NDQ5NDEsImV4cCI6MTcyNDQ0ODU0MSwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50LnNzLmdlIiwiYXVkIjpbInVzZXJfcmVnaXN0cmF0aW9uIiwiSm9iYXJpYUFQSSIsInBhaWRfc2VydmljZXMiLCJ3ZWJfYXBpZ2F0ZXdheSIsInJlYWxfZXN0YXRlIiwic3RhdGlzdGljcyIsImZpbGVzIiwiaG91c2VfYXBpIl0sImNsaWVudF9pZCI6InNzd2ViIiwic3ViIjoiYjRmYTY0YTYtMzAwNC00YTdkLWFmMjctZGU3YmNjOWE4N2E4IiwiYXV0aF90aW1lIjoxNzI0Mzk5OTY3LCJpZHAiOiJsb2NhbCIsInByZWZlcnJlZF91c2VybmFtZSI6IndwYXB1bmExOTk1QGdtYWlsLmNvbSIsIklzUHJlbWl1bSI6IkZhbHNlIiwiU2hvd0FkcyI6IlRydWUiLCJlbWFpbCI6IndwYXB1bmExOTk1QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjoiVHJ1ZSIsInBob25lX251bWJlciI6IjU5ODc1NzU5NiIsInBob25lX251bWJlcl92ZXJpZmllZCI6IlRydWUiLCJVc2VyRW50aXR5VHlwZSI6IkluZGl2aWR1YWwiLCJQSU4iOiI5NTY0NDAwIiwibmFtZSI6IuGDnuGDkOGDnuGDo-GDnOGDkCIsIlJvbGVzIjoiIiwiaWF0IjoxNzI0NDQ0OTQxLCJzY29wZSI6WyJmaWxlcyIsImhvdXNlX2FwaSIsIm9wZW5pZCIsInBhaWRfc2VydmljZXMiLCJwcm9maWxlIiwicmVhbF9lc3RhdGUiLCJzdGF0aXN0aWNzIiwidXNlcl9yZWdpc3RyYXRpb24iLCJ3ZWJfYXBpZ2F0ZXdheSIsIm9mZmxpbmVfYWNjZXNzIl0sImFtciI6WyJvdHAiXX0.FJsFZkxDq4hG9PD2SMAYTWE9Z2aTMZUdNzzLZY00Qtu28bFrJS6my09rpjsZakt7YfG0dF4EgTwDENrwB3IEBBiuWUfI8dbJ398OCLgeaYEmeF9POKDvicnbDdIy9b-huYbFfK2dtfyOSZ-Epvw42rxtSTo_48wozTRDNSMX6ZxY4WveuK7Kgh2cUFyyauE40x_UuHqcpk25JHN3jw9F1OXpbqgUbg4Yhsv7xgQ7RUysDxIqFy_ciIdElzFClRvvK5_NSTmv4jSDCCZzFYgEEg0-YhVF_ObUjh4TmIThXTXDNll6m0HVQaMPm-_gzlSyHrWsTLDWw5-_oZrtdLSIcA")
+
+            api_client = RealEstateClient(token)
             extractor.fetch_html()
             utiles = Utiles()
             application_data = extractor.extract_application_data('__NEXT_DATA__')
@@ -43,7 +47,7 @@ def UploadOnSS(ids, token, user):
                             "hasWhatsapp": False,
                             "isApproved": False,
                             "isMain": True,
-                            "phoneNumber": "577417047"
+                            "phoneNumber": userInfo['phone_number']
                         }
                     ],
                     "subdistrictId": application_data.get('address', {}).get('subdistrictId', False),
@@ -93,7 +97,7 @@ def UploadOnSS(ids, token, user):
                     "commercialRealEstateType": application_data.get('commercialType', False),
                     "floorType": application_data.get('floorType', False),
                     "kitchenArea": application_data.get('kitchenArea', False),
-                    "contactPerson": "papuna",
+                    "contactPerson": userInfo['name'],
                     "hasRemoteViewing": application_data.get('hasRemoteViewing', False),
                     "isForUkraine": False,
                     "isPetFriendly": False,

@@ -33,7 +33,6 @@ class PaidServiceAPI:
             )
 
             response.raise_for_status()  # Raise an exception for HTTP error responses
-            print(response)
             # Try to parse JSON response
             try:
                 return response.status_code
