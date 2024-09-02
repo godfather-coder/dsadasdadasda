@@ -36,14 +36,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     failed_listings_ss = models.JSONField(default=list)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    current_jwt_token = models.CharField(max_length=500, blank=True, null=True)  # Add this field
 
     objects = MyUserManager()
+
     USERNAME_FIELD = "phone_number"
 
     def __str__(self):
         return self.phone_number
-
-
 
 
 
