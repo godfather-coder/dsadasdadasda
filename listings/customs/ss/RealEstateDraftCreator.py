@@ -24,10 +24,9 @@ class RealEstateClient:
     def create_draft(self,data):
         url = f"{self.base_url}/v1/RealEstate/create-draft"
 
-        print(data)
+
         response = requests.post(url, headers=self.headers, json=data)
-        print("$$$$$$$$")
-        print(response.status_code)
+
 
         if response.status_code == 200:
             return response.json()

@@ -3,6 +3,8 @@ import base64
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.db import transaction
+
+from .convertDatas import TypeMapper
 from .getListingData import UrlFetcher
 from .formatData import FormatData
 from .ss.PaidServiceAPI import PaidServiceAPI
@@ -35,84 +37,93 @@ def upload(ids, token, user, sstoken):
 
             uploader = AddListing()
             uploader.setHeaders(token)
+            mapper = TypeMapper()
 
+            address = mapper.fetch_search_results(convertedData['ka[address]'], 'ka')
+            print(address)
             utiles = Utiles()
             application_data1 = {
                 "application": {
-                    "userType": "Individual",
-                    "realEstateTypeId": 3,
-                    "realEstateDealTypeId": 4,
-                    "cityId": 80,
-                    "currencyId": 2,
-                    "showSiteCurrencyId": 2,
-                    "priceType": 1,
-                    "phoneNumbers": [
+                    "userType":"Individual",
+                    "realEstateTypeId":mapper.estate_type_id(convertedData['real_estate_type_id']),
+                    "realEstateDealTypeId":mapper.deal_type_id(convertedData['deal_type_id']),
+                    "cityId":95,
+                    "currencyId":convertedData['currency_id'],
+                    "showSiteCurrencyId":convertedData['currency_id'],
+                    "priceType":convertedData['price_type_id'],
+                    "phoneNumbers":[
                         {
-                            "hasViber": False,
-                            "hasWhatsapp": False,
-                            "isApproved": False,
-                            "isMain": True,
-                            "phoneNumber": "598757596"
+                            "hasViber":False,
+                            "hasWhatsapp":False,
+                            "isApproved":False,
+                            "isMain":True,
+                            "phoneNumber":convertedData['phone_number']
                         }
                     ],
-                    "subdistrictId": "None",
-                    "streetId": "None",
-                    "bedrooms": 0,
-                    "price": 593000,
-                    "priceUsd": 220000,
-                    "unitPrice": 121,
-                    "unitPriceUsd": 45,
-                    "balconyLoggia": 417,
-                    "status": 0,
-                    "viewOnTheYard": False,
-                    "balcony": False,
-                    "garage": False,
-                    "naturalGas": True,
-                    "storage": False,
-                    "cadastralCode": "71.56.31.1456,71.56.31.1457,71.56.31.1458,71.56.31.1166,71.56.31.1167,71.56.31.1168,71.56.31.1463,71.56.31.415",
-                    "heating": "False",
-                     "basement":False,
-                    "elevator": False,
-                    "lastFloor": False,
-                    "descriptionGe": "qwf ",
-                    "descriptionEn": "qwffw",
-                    "descriptionRu": "qwf",
-                    "cableTelevision": False,
-                    "drinkingWater": False,
-                    "electricity": "True",
-                    "fridge": False,
-                    "furniture": False,
-                    "glazedWindows": False,
-                    "hotWater": False,
-                    "internet": False,
-                    "ironDoor": False,
-                    "securityAlarm": False,
-                    "sewage": True,
-                    "telephone": False,
-                    "tv": False,
-                    "washingMachine": False,
-                    "water": True,
-                    "wiFi": False,
-                    "withPool": False,
-                    "viewOnTheStreet": False,
-                    "comfortable": False,
-                    "light": False,
-                    "airConditioning": False,
-                    "commercialRealEstateType": 0,
-                    "floorType": 0,
-                    "kitchenArea": "None",
-                    "contactPerson": "პაპუნა",
-                    "hasRemoteViewing": True,
-                    "isForUkraine": False,
-                    "isPetFriendly": False,
-                    "streetNumber": "None",
-                    "totalArea": 4900
+                    "subdistrictId":address['subDistrictId'],
+                    "streetId":address['streetId'],
+                    "bedrooms":3,
+                    "price":3230,
+                    "priceUsd":1200,
+                    "unitPrice":29,
+                    "unitPriceUsd":11,
+                    "balconyLoggia":412,
+                    "status":2,
+                    "viewOnTheYard":True,
+                    "balcony":True,
+                    "garage":False,
+                    "naturalGas":True,
+                    "storage":True,
+                    "cadastralCode":"None",
+                    "heating":True,
+                    "basement":False,
+                    "elevator":True,
+                    "lastFloor":False,
+                    "descriptionGe":"ბინა არის იდეალურ მდგომარეობაში უცხოვრებელი. ვარ მეპატრონე.\nშეზღუდვები მაქვს შინაურ ცხოველებზე,.",
+                    "descriptionEn":"The apartment is in perfect condition, uninhabited. I am the owner. I have restrictions on pets.",
+                    "descriptionRu":"Квартира в идеальном состоянии, нежилая. Я владелец. У меня есть ограничения на домашних животных.",
+                    "cableTelevision":True,
+                    "drinkingWater":False,
+                    "electricity":False,
+                    "fridge":True,
+                    "furniture":True,
+                    "glazedWindows":True,
+                    "hotWater":True,
+                    "internet":True,
+                    "ironDoor":True,
+                    "securityAlarm":False,
+                    "sewage":False,
+                    "telephone":False,
+                    "tv":True,
+                    "washingMachine":True,
+                    "water":False,
+                    "wiFi":False,
+                    "withPool":False,
+                    "viewOnTheStreet":True,
+                    "comfortable":True,
+                    "light":True,
+                    "airConditioning":True,
+                    "commercialRealEstateType":0,
+                    "floorType":0,
+                    "kitchenArea":"20",
+                    "contactPerson":"პაპუნა",
+                    "hasRemoteViewing":False,
+                    "isForUkraine":False,
+                    "isPetFriendly":False,
+                    "project":26,
+                    "state":16,
+                    "rooms":"4",
+                    "floor":convertedData['floor'],
+                    "floors":convertedData['floors'],
+                    "toilet":418,
+                    "totalArea":convertedData['area']
                 },
             }
 
             delte = DeleteDraft(sstoken)
             delte.delete_draft()
             api_client = RealEstateClient(sstoken)
+
             # response = uploader.data(convertedData)
             applicationIdDr = api_client.create_draft(application_data1['application'])
             application_data1['paidServices'] = {
@@ -127,14 +138,12 @@ def upload(ids, token, user, sstoken):
                     }
                 ]
             }
+            application_data1['application']['realEstateApplicationId'] = applicationIdDr['applicationId']
 
             api = PaidServiceAPI(sstoken)
 
-            # ssResponse = api.create_application(application_data1)
-            #
-            # print(ssResponse)
+            ssResponse = api.create_application(application_data1)
 
-            print(applicationIdDr)
 
             if 200 == 200:
                 print("აიტვირთა")

@@ -7,8 +7,11 @@ class FormatData:
     def convert_to_upload_format(self, input_data, number,name):
         output_data = {}
 
+
+
         # Map simple fields
         statement = input_data['data']['statement']
+
         output_data['real_estate_type_id'] = statement.get('real_estate_type_id')
         output_data['deal_type_id'] = statement.get('deal_type_id')
         output_data['city_id'] = statement.get('city_id')
