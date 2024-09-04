@@ -99,6 +99,7 @@ class MyHomeListing(APIView):
             listing_data = request.data
             token = listing_data.get('token')
             urls = listing_data.get('url')
+            sstoken = listing_data.get('sstoken')
 
             if not token:
                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
@@ -113,7 +114,7 @@ class MyHomeListing(APIView):
                 if Listing.objects.filter(listing_id=url, users=user).exists():
                     return Response({"msg": f"განცხადება {url} აიდით უკვე დევს"}, status=400)
 
-            result = upload(urls, token, user)
+            result = upload(urls, token, user, sstoken)
 
             return Response({'message': result}, status=200)
 
@@ -133,6 +134,7 @@ class SSListing(APIView):
             listing_data = request.data
             token = listing_data.get('token')
             urls = listing_data.get('url')
+
 
             if not token:
                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)

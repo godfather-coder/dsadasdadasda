@@ -31,7 +31,6 @@ def UploadOnSS(ids, token, user):
             utiles = Utiles()
             application_data = extractor.extract_application_data('__NEXT_DATA__')
             json.dumps(application_data, indent=4, ensure_ascii=False)
-            print("teste")
             application_data1 = {
                 "application": {
                     "userType": "Individual",
@@ -134,9 +133,7 @@ def UploadOnSS(ids, token, user):
                     application_data1['application']['totalArea'] = application_data.get('totalArea', 0)
 
 
-
             applicationIdDr = api_client.create_draft(application_data1['application'])
-
             urls = []
 
             for img in application_data['appImages']:
@@ -173,7 +170,7 @@ def UploadOnSS(ids, token, user):
 
 
             response = api.create_application(application_data1)
-            print(application_data1)
+
             if response == 200:
                 result.append("განცხადება " + singleId + " წარმატებით დაიდო")
                 successful_uploads += 1
