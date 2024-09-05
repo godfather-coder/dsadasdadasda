@@ -168,6 +168,7 @@ def UploadOnSS(ids, token, user):
             application_data1['application']['realEstateApplicationId'] = applicationIdDr['applicationId']
             api = PaidServiceAPI(token)
 
+            print(application_data1)
 
             response = api.create_application(application_data1)
 

@@ -101,6 +101,9 @@ class MyHomeListing(APIView):
             urls = listing_data.get('url')
             sstoken = listing_data.get('sstoken')
 
+            if not sstoken:
+                sstoken = None
+
             if not token:
                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
 

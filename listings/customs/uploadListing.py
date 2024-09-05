@@ -95,7 +95,6 @@ class AddListing:
             data.update(results[index])
 
         response = requests.post(self.url, headers=self.headers, files=data)
-        print(response)
 
         try:
             return response.status_code
