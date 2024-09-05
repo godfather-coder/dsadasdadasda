@@ -11,6 +11,23 @@ class TypeMapper:
             5: 6,
             6: 2,
         }
+
+        self.state_mapping = {
+            1: 16,
+            2: 12,
+            3: 11,
+            4: 10,
+            5: 9,
+            6: 8,
+            7: 35,
+            8: 15,
+
+        }
+        self.status_mapping = {
+            1: 453,
+            2: 2,
+            3: 3,
+        }
         self.deal_mapping = {
             1: 4,
             2: 1,
@@ -33,6 +50,15 @@ class TypeMapper:
     def estate_type_id(self, number):
         # Return the mapped value for estate type or None if not found
         return self.estate_mapping.get(number, None)
+
+    def state(self, number):
+        # Return the mapped value for estate type or None if not found
+        return self.state_mapping.get(number, None)
+
+    def status(self, number):
+        # Return the mapped value for estate type or None if not found
+        return self.status_mapping.get(number, None)
+
 
     def deal_type_id(self, number):
         # Return the mapped value for deal type or None if not found

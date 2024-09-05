@@ -12,6 +12,24 @@ from .ssImage import ImageUploader
 from .utiles import Utiles
 from .jwt import JWTExtractor
 
+
+def uploadImagesSS(urls, token, applicationId):
+    imagebase = ImageConverter(urls)
+    image_urls = imagebase.get_base64_images()
+    imaUpl = ImageUploader(applicationId, token)
+    upl_imag_arr = []
+    for base_64 in image_urls:
+        res = imaUpl.upload_image(base_64)
+        upl_imag_arr.append({
+            "applicationImageId": res["imageId"],
+            "fileName": res["fileName"],
+            "isMain": False,
+            "is360": False,
+            "orderNo": 0,
+            "imageRotation": 0
+        })
+    return upl_imag_arr
+
 def UploadOnSS(ids, token, user):
     result = []
     successful_uploads = 0
@@ -136,22 +154,14 @@ def UploadOnSS(ids, token, user):
             applicationIdDr = api_client.create_draft(application_data1['application'])
             urls = []
 
+
+
             for img in application_data['appImages']:
                 urls.append(img['fileName'])
-            imagebase = ImageConverter(urls)
-            image_urls = imagebase.get_base64_images()
-            imaUpl = ImageUploader(applicationIdDr['applicationId'], token)
-            upl_imag_arr = []
-            for base_64 in image_urls:
-                res = imaUpl.upload_image(base_64)
-                upl_imag_arr.append({
-                    "applicationImageId": res["imageId"],
-                    "fileName": res["fileName"],
-                    "isMain": False,
-                    "is360": False,
-                    "orderNo": 0,
-                    "imageRotation": 0
-                })
+
+
+            finalImages =  uploadImagesSS(urls,token,applicationIdDr['applicationId'])
+
             application_data1['paidServices'] = {
                 "isCreate": True,
                 "items": [
@@ -164,11 +174,10 @@ def UploadOnSS(ids, token, user):
                     }
                 ]
             }
-            application_data1['application']["images"] = upl_imag_arr
+            application_data1['application']["images"] = finalImages
             application_data1['application']['realEstateApplicationId'] = applicationIdDr['applicationId']
             api = PaidServiceAPI(token)
 
-            print(application_data1)
 
             response = api.create_application(application_data1)
 
@@ -179,6 +188,7 @@ def UploadOnSS(ids, token, user):
                 result.append("შეცდომა აიდი " + singleId + "-ის დადებისას")
                 failed_uploads.append(singleId)
         except Exception as e:
+            print(e)
             result.append("შეცდომა აიდი " + singleId + "-ის დადებისას")
 
             failed_uploads.append(singleId)

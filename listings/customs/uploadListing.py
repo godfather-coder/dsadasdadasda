@@ -2,8 +2,14 @@ import time
 
 import requests
 from io import BytesIO
+from .ss.ImageConverter import ImageConverter
 import json
 import threading
+
+from .ss.jwt import token
+from .uploadOnBoth import fromMyhomeToSS
+
+
 class AddListing:
 
     headers = {}
@@ -32,7 +38,7 @@ class AddListing:
         self.head = None
         self.url = "https://api-statements.tnet.ge/v1/statements/create"
 
-    def data(self, data1):
+    def data(self, data1, sstoken):
         data = {}
         if data1["deal_type_id"] == 1:
             data['can_exchanged'] = (None, 0)
@@ -69,7 +75,17 @@ class AddListing:
 
         image_urls = [url for url in images if url]
 
-        # Using threading to upload images concurrently
+        ssresponse = None
+
+
+
+        if sstoken:
+            print("daiwyo ss ze dadeba")
+            try:
+                ssresponse = fromMyhomeToSS(data1, sstoken, image_urls)
+            except:
+                pass
+
         threads = []
         results = {}
 
@@ -97,7 +113,7 @@ class AddListing:
         response = requests.post(self.url, headers=self.headers, files=data)
 
         try:
-            return response.status_code
+            return {"myhome":response.status_code, "ss": ssresponse}
         except json.JSONDecodeError:
             return "შეცდომა"
 

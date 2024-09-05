@@ -33,19 +33,18 @@ def upload(ids, token, user, sstoken):
             uploader = AddListing()
             uploader.setHeaders(token)
 
-            response2 = None
-            response = uploader.data(convertedData)
-            if sstoken:
-                response2 = fromMyhomeToSS(convertedData, sstoken)
 
-            if response == 200 and response2 == 200 and sstoken:
+            response = uploader.data(convertedData, sstoken)
+
+
+            if response['myhome'] == 200 and response['ss'] == 200 and sstoken:
                 return "განცხადება " + singleId + " ორივე საიტზე წარმატებით დაიდო", singleId, True
-            elif response !=200 and response2 == 200 and sstoken:
-                return "განცხადება " + singleId + " ვერ დაიდო მაიჰოუმზე, მაგრამ დაიდო სსზე", singleId, False
-            elif response == 200 and response2 != 200 and sstoken:
-                return "განცხადება " + singleId + " ვერ დაიდო სსზე, მაგრამ დაიდო მაიჰოუმზე", singleId, False
-            elif response ==200 and not sstoken:
-                return "განცხადება " + singleId + " წარმატებით დაიდო მაიჰოუმზე", singleId, False
+            elif response['myhome'] == 200 and response['ss'] != 200 and sstoken:
+                return "განცხადება " + singleId + " დაიდო მაიჰოუმზე მაგრამ არ დაიდო სს-ზე. (გადამოწმდება რატომ და გასწორდება)", singleId, True
+            elif response['myhome'] != 200 and response['ss'] == 200 and sstoken:
+                return "განცხადება " + singleId + " დაიდო სს-ზე მაგრამ არ დაიდო მაიჰოუმზე. (გადამოწმდება რატომ და გასწორდება)", singleId, True
+            elif response['myhome'] != 200 and not sstoken:
+                return "განცხადება " + singleId + " წარმატებით დაიდო მაიჰოუმზე", singleId, True
             else:
                 return "შეცდომა აიდი " + singleId + "-ის დადებისას", singleId, False
         except Exception as e:
