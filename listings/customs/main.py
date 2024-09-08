@@ -51,7 +51,7 @@ def upload(ids, token, user, sstoken):
             print(e)
             return "შეცდომა აიდი " + singleId + "-ის დადებისას", singleId, False
 
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         future_to_id = {executor.submit(process_single_id, singleId): singleId for singleId in ids}
 
         for future in as_completed(future_to_id):

@@ -66,7 +66,7 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
                "viewOnTheStreet": False,
                "comfortable": False,
                "light": False,
-               "airConditioning": False,
+               # "airConditioning": mapper.attribute_id_mapping(),
                "hasRemoteViewing": False,
                "isForUkraine": False,
                "isPetFriendly": False,
@@ -100,6 +100,12 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
 
        delte = DeleteDraft(sstoken)
        delte.delete_draft()
+       print(convertedData['parameters[0]'])
+       data =[]
+       for i in convertedData.keys():
+           if i.startswith("parameters"):
+               data[i] = (None, str(convertedData[i]))
+       print(data)
        api_client = RealEstateClient(sstoken)
        applicationIdDr = api_client.create_draft(application_data1['application'])
        application_data1['paidServices'] = {
