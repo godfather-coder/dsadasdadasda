@@ -1,3 +1,5 @@
+import json
+
 from .ss.ImageConverter import ImageConverter
 from .ss.PaidServiceAPI import PaidServiceAPI
 from .ss.RealEstateDraftCreator import RealEstateClient
@@ -13,6 +15,7 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
        mapper = TypeMapper()
 
        address = mapper.fetch_search_results(convertedData['ka[address]'], 'ka')
+       print(convertedData)
        application_data1 = {
            "application": {
                "userType": "Individual",
@@ -37,35 +40,6 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
                "unitPriceUsd": 11,
                "balconyLoggia": 412,
                "status": mapper.status(convertedData["status_id"]),
-               "viewOnTheYard": False,
-               "balcony": False,
-               "garage": False,
-               "naturalGas": False,
-               "storage": False,
-               "heating": False,
-               "basement": False,
-               "elevator": False,
-               "lastFloor": False,
-               "cableTelevision": False,
-               "drinkingWater": False,
-               "electricity": False,
-               "fridge": False,
-               "furniture": False,
-               "glazedWindows": False,
-               "hotWater": False,
-               "internet": False,
-               "ironDoor": False,
-               "securityAlarm": False,
-               "sewage": False,
-               "telephone": False,
-               "tv": False,
-               "washingMachine": False,
-               "water": False,
-               "wiFi": False,
-               "withPool": False,
-               "viewOnTheStreet": False,
-               "comfortable": False,
-               "light": False,
                # "airConditioning": mapper.attribute_id_mapping(),
                "hasRemoteViewing": False,
                "isForUkraine": False,
@@ -86,7 +60,7 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
                "toilet": convertedData['bathroom_type_id'],
                "totalArea": convertedData['area'],
                "subDistrictId": address['subDistrictId'],
-               "streetId": address['streetId'],
+               # "streetId": address['streetId'],
                "floor": convertedData['floor'],
                "floors": convertedData['total_floors'],
 
@@ -100,12 +74,30 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
 
        delte = DeleteDraft(sstoken)
        delte.delete_draft()
-       print(convertedData['parameters[0]'])
-       data =[]
-       for i in convertedData.keys():
-           if i.startswith("parameters"):
-               data[i] = (None, str(convertedData[i]))
-       print(data)
+       print("test")
+
+       def extract_parameters(data):
+           parameters = {}
+           for key, value in data.items():
+               if key.startswith("parameters"):
+                   parameters[key] = value
+           return parameters
+
+       parameters = extract_parameters(convertedData)
+       print(parameters)
+       print("Extracted Parameters:")
+       for key, value in parameters.items():
+           attr_string = mapper.attr_id(value)
+           if attr_string:
+               new_element = '{' + attr_string + '}'
+
+               print(new_element)
+
+               new_element_dict = json.loads(new_element)
+
+               application_data1['application'].update(new_element_dict)
+
+
        api_client = RealEstateClient(sstoken)
        applicationIdDr = api_client.create_draft(application_data1['application'])
        application_data1['paidServices'] = {

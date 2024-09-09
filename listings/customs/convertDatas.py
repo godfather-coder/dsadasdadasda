@@ -48,18 +48,28 @@ class TypeMapper:
             4: 28,
         }
         self.attribute_id_mapping = {
-            4: "airConditioning:  true",
-            6: "elevator:  true",
-            10: "furniture:  true",
-            38: "ironDoor:  true",
-            12: "securityAlarm:  true",
-            11: "telephone:  true",
-            17: "washingMachine:  true",
-            3: "cableTelevision:  true",
-            16: "fridge:  true",
-            2: "wiFi:  true",
-            1: "naturalGas:  true",
-            50: "storage:  true",
+            4: '"airConditioning": true',
+            12: '"balcony": true',
+            26: '"electricity": true',
+            6: '"elevator": true',
+            16: '"fridge": true',
+            10: '"furniture": true',
+            # 16: '"garage": true',
+            # 16: '"glazedWindows": true',
+            # 16: '"heating": true',??????????
+            # 16: '"hotWater": true',
+            2: '"internet": true',
+            36: '"ironDoor": true',
+            # 16: '"lastFloor": true',
+            1: '"naturalGas": true',
+            # 16: '"securityAlarm": true',
+            25: '"sewage": true',
+            # 16: '"storage": true',
+            11: '"telephone": true',
+            3: '"tv": true',
+            17: '"washingMachine": true',
+            24: '"water": true',
+
         }
 
     def attr_id(self,attr):
@@ -74,7 +84,7 @@ class TypeMapper:
 
     def status(self, number):
         # Return the mapped value for estate type or None if not found
-        return self.status_mapping.get(number, None)
+        return self.status_mapping.get(number, 2)
 
     def deal_type_id(self, number):
         # Return the mapped value for deal type or None if not found

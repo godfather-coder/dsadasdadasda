@@ -60,9 +60,9 @@ class AddListing:
             if value is not None:
                 data[key] = (None, str(value))
 
-        for i in data1.keys():
-            if i.startswith("parameters"):
-                data[i] = (None, str(data1[i]))
+        # for i in data1.keys():
+        #     if i.startswith("parameters"):
+        #         data[i] = (None, str(data1[i]))
 
         data['websites[0]'] = (None, '2')
 

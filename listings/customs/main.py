@@ -29,6 +29,7 @@ def upload(ids, token, user, sstoken):
                 data, decoded_payload_json.get('data').get('phone'),
                 decoded_payload_json.get('data').get('user_name')
             )
+            # print(convertedData)
 
             uploader = AddListing()
             uploader.setHeaders(token)
@@ -51,7 +52,7 @@ def upload(ids, token, user, sstoken):
             print(e)
             return "შეცდომა აიდი " + singleId + "-ის დადებისას", singleId, False
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         future_to_id = {executor.submit(process_single_id, singleId): singleId for singleId in ids}
 
         for future in as_completed(future_to_id):
