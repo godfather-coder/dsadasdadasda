@@ -31,10 +31,9 @@ class PaidServiceAPI:
                 headers=self.headers,
                 json=application_data
             )
-            print("data send to server")
-            print(application_data)
 
-            print(response.json())
+
+            print(response.status_code)
             response.raise_for_status()  # Raise an exception for HTTP error responses
             try:
                 return response.status_code
