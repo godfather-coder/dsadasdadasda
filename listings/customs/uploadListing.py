@@ -1,9 +1,12 @@
-import time
 
 import requests
 from io import BytesIO
 import json
 import threading
+
+from .logCreator import log_user_action
+from .uploadOnBoth import fromMyhomeToSS
+
 class AddListing:
 
     headers = {}
@@ -32,7 +35,7 @@ class AddListing:
         self.head = None
         self.url = "https://api-statements.tnet.ge/v1/statements/create"
 
-    def data(self, data1):
+    def data(self, data1, sstoken, user, session_id):
         data = {}
         if data1["deal_type_id"] == 1:
             data['can_exchanged'] = (None, 0)
@@ -54,9 +57,9 @@ class AddListing:
             if value is not None:
                 data[key] = (None, str(value))
 
-        for i in data1.keys():
-            if i.startswith("parameters"):
-                data[i] = (None, str(data1[i]))
+        # for i in data1.keys():
+        #     if i.startswith("parameters"):
+        #         data[i] = (None, str(data1[i]))
 
         data['websites[0]'] = (None, '2')
 
@@ -69,7 +72,19 @@ class AddListing:
 
         image_urls = [url for url in images if url]
 
-        # Using threading to upload images concurrently
+        ssresponse = None
+
+
+
+        if sstoken:
+            log_user_action(user, 'გააყოლა თუ არა სს ტოკენი',
+                            details=f'ტოკენი: {sstoken}, Session ID: {session_id}', session_id=session_id)
+
+            try:
+                ssresponse = fromMyhomeToSS(data1, sstoken, image_urls, user, session_id)
+            except:
+                pass
+
         threads = []
         results = {}
 
@@ -86,19 +101,18 @@ class AddListing:
             threads.append(thread)
             thread.start()
 
-        # Wait for all threads to finish
         for thread in threads:
             thread.join()
 
-        # Add uploaded image data to the main data dictionary
         for index in results:
             data.update(results[index])
 
         response = requests.post(self.url, headers=self.headers, files=data)
-        print(response.json())
+        log_user_action(user, 'მაიჰოუმიდან დაბრუნებული რესპონსი',
+                        details=f'რესპონსი: {response.json()}, Session ID: {session_id}', session_id=session_id)
 
         try:
-            return response.status_code
+            return {"myhome":response.status_code, "ss": ssresponse}
         except json.JSONDecodeError:
             return "შეცდომა"
 

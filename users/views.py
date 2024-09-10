@@ -1,9 +1,10 @@
 from django.contrib.auth import authenticate, login
 from rest_framework import status, permissions
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import User
+from .models import User, UserActionLog
 from .serializers import UserLoginSerializer, UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
@@ -62,6 +63,26 @@ class UserRegistrationAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class GetLogsBySession(APIView):
+    permission_classes = [IsAdminUser]  # Only admin users can access this view
+
+    def get(self, request, session_id):
+        # Retrieve all logs with the given session_id
+        logs = UserActionLog.objects.filter(session_id=session_id)
+
+        # Prepare data for response
+        log_data = [{
+            'session_id': "efw",
+            'user': log.user.phone_number,
+            'action': log.action,
+            'details': log.details,
+            'timestamp': log.timestamp
+        } for log in logs]
+
+        return Response({'session_id': session_id, 'logs': log_data}, status=200)
 
 
 def get_tokens_for_user(user):

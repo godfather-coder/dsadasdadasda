@@ -1,6 +1,9 @@
 import requests
 import json
 
+from listings.customs.logCreator import log_user_action
+
+
 class PaidServiceAPI:
     def __init__(self, auth_token):
         self.base_url = "https://api-gateway.ss.ge"
@@ -23,7 +26,7 @@ class PaidServiceAPI:
             "sec-fetch-site": "same-site"
         }
 
-    def create_application(self, application_data):
+    def create_application(self, application_data,user, session_id):
         url = f"{self.base_url}/v1/PaidService/create-application"
         try:
             response = requests.post(
@@ -32,8 +35,11 @@ class PaidServiceAPI:
                 json=application_data
             )
 
+
+            print(response.status_code)
+            log_user_action(user, 'სს-ის დადების რესპონსი',
+                            details=f'სტატუს კოდი: {response.status_code}, დატა: {response.json()}', session_id=session_id)
             response.raise_for_status()  # Raise an exception for HTTP error responses
-            # Try to parse JSON response
             try:
                 return response.status_code
             except json.JSONDecodeError:

@@ -92,9 +92,8 @@ class Utiles:
             return 417
         return int(re.sub(r'\D', '', key_for_value))
 
+    def transform_number(self, num):
+        return {"id":417,"has":False} if num == 0 else {"id":411 + num,"has":True}
 
 ut = Utiles()
 
-print(ut.getToiletId("5+"))
-print(ut.getProjectId("მეტრომშენის"))
-print(ut.getStateId('თეთრი კარკასი'))
