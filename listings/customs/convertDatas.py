@@ -1,4 +1,6 @@
 # main_file.py
+import time
+
 import requests
 from .mappings import estate_mapping, state_mapping, status_mapping, deal_mapping,project_type_mapping, attribute_id_mapping, urban_mapping, street_mapping
 
@@ -19,7 +21,7 @@ class TypeMapper:
 
     def street_id(self, number):
         # Return the mapped value for estate type or None if not found
-        return self.street_mapping.get(str(number), None)
+        return self.street_mapping.get(number, None)
 
     def estate_type_id(self, number):
         return self.estate_mapping.get(number, None)
@@ -46,17 +48,28 @@ class TypeMapper:
         url = "https://home.ss.ge/api/search-loc"
         params = {'lang': lang}
 
-        def fetch_data(search_param):
-            """Fetch data from API based on the search parameter."""
-            try:
-                params['search'] = search_param
-                response = requests.get(url, params=params)
-                response.raise_for_status()
-                print(response.status_code)
-                return response.json()  # Get the JSON response
-            except requests.exceptions.RequestException as e:
-                print(f"Error fetching data for '{search_param}': {e}")
-                return []
+        def fetch_data(search_param, retries=3, timeout=1.5):
+            params = {'search': search_param}
+            attempt = 0
+
+            while attempt < retries:
+                try:
+                    print(f"Attempt {attempt + 1} for search_param: {search_param}")
+                    print("7777777777777777777")
+                    time.sleep(1.5)
+                    response = requests.get(url, params=params, timeout=timeout)
+                    print("8888888888888888888")
+                    response.raise_for_status()
+                    return response.json()  # Get the JSON response
+                except requests.exceptions.Timeout:
+                    print(f"Timeout after {timeout} seconds, retrying...")
+                    attempt += 1
+                except requests.exceptions.RequestException as e:
+                    print(f"Error fetching data for '{search_param}': {e}")
+                    return []  # Return empty list in case of other request issues
+
+            print(f"Failed to fetch data for '{search_param}' after {retries} attempts.")
+            return []  # Return empty list if all attempts fail
 
         # Split the search parameter by spaces and take the longest word
         words = search.split()
@@ -67,7 +80,7 @@ class TypeMapper:
 
         # Fetch data using the longest word and add to results
         for word in [longest_word, longest_word[:-1], longest_word[:-2]]:
-            print(word)
+
             data = fetch_data(word)
             for item in data:
                 if item.get('cityId') == 95 and item not in new:
@@ -75,7 +88,8 @@ class TypeMapper:
 
         # Filter the results based on urbanId and return them
         filtered = [item for item in new if item.get('subDistrictId') == urbanId]
-
+        print(filtered[0])
+        print("-------------------------------------------")
         return filtered[0]['streetId'] if filtered else {"message": "No matches found for the given urbanId."}
 
 

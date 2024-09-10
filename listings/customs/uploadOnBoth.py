@@ -13,13 +13,10 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
     try:
 
         mapper = TypeMapper()
+        print(convertedData['street_id'])
         print(convertedData['ka[address]'])
-        print(mapper.street_id(convertedData['street_id']))
-        print(mapper.fetch_search_results(convertedData['ka[address]'], 'ka', mapper.urban_id(convertedData['urban_id'])))
-        if mapper.street_id(convertedData['street_id']) is None:
-            street = mapper.street_id(convertedData['street_id'])
-        else:
-            street = mapper.fetch_search_results(convertedData['ka[address]'], 'ka', convertedData['urban_id'])
+
+
 
 
 
@@ -67,21 +64,41 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
 
                 "totalArea": convertedData['area'],
                 # "subDistrictId": mapper.urban_id(convertedData['urban_id']),
-                "streetId": street,
                 "floor": convertedData['floor'],
                 "floors": convertedData['total_floors'],
             },
         }
 
+        if mapper.street_id(convertedData['street_id']) is not None:
+            application_data1['application']['streetId'] = mapper.street_id(convertedData['street_id'])
+        else:
+            print("movida aqana")
+            plz = mapper.fetch_search_results(convertedData['ka[address]'], 'ka', mapper.urban_id(convertedData['urban_id']))
+            print("oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+            print(plz)
+            print("shiggggg")
+            if plz != "No matches found for the given urbanId.":
+                print("movida aqanacccccc")
+                application_data1['application']['streetId'] = plz
+                print("shig hoargaq")
+
+
+
+        print("vaxxxxxxxxxxx")
         if convertedData['bedroom_type_id'] is None or convertedData['bedroom_type_id'] == "None":
+            print("vaxxxxxxxxxxx")
             application_data1['application']['bedrooms'] = 0
+            print(1)
         else:
             application_data1['application']['bedrooms'] = convertedData['bedroom_type_id']
+            print(2)
 
         if convertedData['bathroom_type_id'] is None or convertedData['bathroom_type_id'] == "None":
             application_data1['application']['toilet'] = 1
+            print(3)
         else:
             application_data1['application']['toilet'] = convertedData['bathroom_type_id']
+            print(4)
 
         delte = DeleteDraft(sstoken)
         delte.delete_draft()
