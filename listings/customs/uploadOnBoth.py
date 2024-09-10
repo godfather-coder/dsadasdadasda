@@ -59,13 +59,20 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls, user, session_id):
                 "floors": convertedData['total_floors'],
             },
         }
-
+        print(mapper.street_id(convertedData['street_id']))
+        print(convertedData['street_id'])
+        print("----------------------------------------------------")
         if mapper.street_id(convertedData['street_id']) is not None:
 
             plz = mapper.street_id(convertedData['street_id'])
             application_data1['application']['streetId'] = plz
+
         else:
+            print("yleeeeee")
+            print(mapper.district_id(convertedData['district_id']))
+            print(mapper.urban_id(convertedData['urban_id']))
             plz = mapper.fetch_search_results(convertedData['ka[address]'], 'ka', mapper.urban_id(convertedData['urban_id']))
+
             if plz != "No matches found for the given urbanId.":
                 application_data1['application']['streetId'] = plz
 

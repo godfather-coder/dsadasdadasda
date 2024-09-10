@@ -44,6 +44,13 @@ project_type_mapping = {
     4: 28,
 }
 
+district_mapping = {
+    4:3,
+    5:4,
+    1:2,
+    3:1,
+    6:5
+}
 
 urban_mapping = {
     28: 44,

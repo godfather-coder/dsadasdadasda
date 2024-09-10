@@ -2,7 +2,7 @@
 import time
 
 import requests
-from .mappings import estate_mapping, state_mapping, status_mapping, deal_mapping,project_type_mapping, attribute_id_mapping, urban_mapping, street_mapping
+from .mappings import estate_mapping, state_mapping, status_mapping, deal_mapping,project_type_mapping, attribute_id_mapping, urban_mapping, street_mapping, district_mapping
 
 class TypeMapper:
     def __init__(self):
@@ -15,6 +15,7 @@ class TypeMapper:
         self.attribute_id_mapping = attribute_id_mapping
         self.urban_mapping = urban_mapping
         self.street_mapping = street_mapping
+        self.district_mapping = district_mapping
 
     def attr_id(self, attr):
         return self.attribute_id_mapping.get(attr, None)
@@ -26,6 +27,8 @@ class TypeMapper:
     def estate_type_id(self, number):
         return self.estate_mapping.get(number, None)
 
+    def district_id(self, number):
+        return self.district_mapping.get(number, None)
     def urban_id(self, number):
         return self.urban_mapping.get(number, None)
 
@@ -48,18 +51,17 @@ class TypeMapper:
         url = "https://home.ss.ge/api/search-loc"
         params = {'lang': lang}
 
-        def fetch_data(search_param, retries=4, timeout=2):
+        def fetch_data(search_param, retries=10, timeout=1.5):
             params = {'search': search_param}
             attempt = 0
 
             while attempt < retries:
                 try:
-                    time.sleep(1.5)
-                    print("cda")
-
+                    print("try")
                     print(attempt)
                     response = requests.get(url, params=params, timeout=timeout)
-                    print(response.status_code)
+                    print(response.json())
+                    print(urbanId)
 
                     response.raise_for_status()
                     return response.json()  # Get the JSON response
@@ -77,11 +79,10 @@ class TypeMapper:
         # Create a list to collect results
         new = []
 
-        print(search)
-        print("------------------------------------")
         for word in [longest_word, longest_word[:-1], longest_word[:-2]]:
 
             data = fetch_data(word)
+            print(word)
 
             for item in data:
                 if item.get('cityId') == 95 and item not in new:
@@ -89,6 +90,7 @@ class TypeMapper:
 
         # Filter the results based on urbanId and return them
         filtered = [item for item in new if item.get('subDistrictId') == urbanId]
+
         return filtered[0]['streetId'] if filtered else "No matches found for the given urbanId."
 
 
