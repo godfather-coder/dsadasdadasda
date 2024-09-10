@@ -48,14 +48,19 @@ class TypeMapper:
         url = "https://home.ss.ge/api/search-loc"
         params = {'lang': lang}
 
-        def fetch_data(search_param, retries=3, timeout=1.5):
+        def fetch_data(search_param, retries=4, timeout=2):
             params = {'search': search_param}
             attempt = 0
 
             while attempt < retries:
                 try:
                     time.sleep(1.5)
+                    print("cda")
+
+                    print(attempt)
                     response = requests.get(url, params=params, timeout=timeout)
+                    print(response.status_code)
+
                     response.raise_for_status()
                     return response.json()  # Get the JSON response
                 except requests.exceptions.Timeout:
@@ -72,17 +77,19 @@ class TypeMapper:
         # Create a list to collect results
         new = []
 
-        # Fetch data using the longest word and add to results
+        print(search)
+        print("------------------------------------")
         for word in [longest_word, longest_word[:-1], longest_word[:-2]]:
 
             data = fetch_data(word)
+
             for item in data:
                 if item.get('cityId') == 95 and item not in new:
                     new.append(item)
 
         # Filter the results based on urbanId and return them
         filtered = [item for item in new if item.get('subDistrictId') == urbanId]
-        return filtered[0]['streetId'] if filtered else {"message": "No matches found for the given urbanId."}
+        return filtered[0]['streetId'] if filtered else "No matches found for the given urbanId."
 
 
 # Example usage:

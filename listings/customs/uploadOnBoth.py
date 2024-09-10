@@ -11,6 +11,8 @@ from .ss.main import uploadImagesSS
 def fromMyhomeToSS(convertedData, sstoken, image_urls, user, session_id):
     try:
 
+
+
         mapper = TypeMapper()
         application_data1 = {
             "application": {
@@ -59,10 +61,11 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls, user, session_id):
         }
 
         if mapper.street_id(convertedData['street_id']) is not None:
-            application_data1['application']['streetId'] = mapper.street_id(convertedData['street_id'])
+
+            plz = mapper.street_id(convertedData['street_id'])
+            application_data1['application']['streetId'] = plz
         else:
             plz = mapper.fetch_search_results(convertedData['ka[address]'], 'ka', mapper.urban_id(convertedData['urban_id']))
-
             if plz != "No matches found for the given urbanId.":
                 application_data1['application']['streetId'] = plz
 
