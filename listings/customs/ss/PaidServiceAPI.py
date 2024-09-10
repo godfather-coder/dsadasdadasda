@@ -26,7 +26,7 @@ class PaidServiceAPI:
             "sec-fetch-site": "same-site"
         }
 
-    def create_application(self, application_data,user):
+    def create_application(self, application_data,user, session_id):
         url = f"{self.base_url}/v1/PaidService/create-application"
         try:
             response = requests.post(
@@ -38,7 +38,7 @@ class PaidServiceAPI:
 
             print(response.status_code)
             log_user_action(user, 'სს-ის დადების რესპონსი',
-                            details=f'სტატუს კოდი: {response.status_code}, დატა: {response.json()}')
+                            details=f'სტატუს კოდი: {response.status_code}, დატა: {response.json()}', session_id=session_id)
             response.raise_for_status()  # Raise an exception for HTTP error responses
             try:
                 return response.status_code

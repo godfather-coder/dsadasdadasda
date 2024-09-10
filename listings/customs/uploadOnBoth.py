@@ -121,7 +121,7 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls, user, session_id):
 
         log_user_action(user, 'სს-ის აფლოუდზე გატანებული დატა',
                         details=f'დატა: {application_data1}, Session ID: {session_id}', session_id=session_id)
-        ssResponse = api.create_application(application_data1, user)
+        ssResponse = api.create_application(application_data1, user, session_id)
 
         return ssResponse
     except Exception as e:

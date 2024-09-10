@@ -33,7 +33,7 @@ class TypeMapper:
         return self.state_mapping.get(number, 2)
 
     def status(self, number):
-        return self.status_mapping.get(number, None)
+        return self.status_mapping.get(number, 2)
 
     def deal_type_id(self, number):
         return self.deal_mapping.get(number, None)
