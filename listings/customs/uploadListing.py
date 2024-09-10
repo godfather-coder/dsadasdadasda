@@ -1,14 +1,11 @@
-import time
 
 import requests
 from io import BytesIO
-from .ss.ImageConverter import ImageConverter
 import json
 import threading
 
-from .ss.jwt import token
+from .logCreator import log_user_action
 from .uploadOnBoth import fromMyhomeToSS
-
 
 class AddListing:
 
@@ -38,7 +35,7 @@ class AddListing:
         self.head = None
         self.url = "https://api-statements.tnet.ge/v1/statements/create"
 
-    def data(self, data1, sstoken):
+    def data(self, data1, sstoken, user, session_id):
         data = {}
         if data1["deal_type_id"] == 1:
             data['can_exchanged'] = (None, 0)
@@ -80,9 +77,11 @@ class AddListing:
 
 
         if sstoken:
-            print("daiwyo ss ze dadeba")
+            log_user_action(user, 'გააყოლა თუ არა სს ტოკენი',
+                            details=f'ტოკენი: {sstoken}, Session ID: {session_id}', session_id=session_id)
+
             try:
-                ssresponse = fromMyhomeToSS(data1, sstoken, image_urls)
+                ssresponse = fromMyhomeToSS(data1, sstoken, image_urls, user, session_id)
             except:
                 pass
 
@@ -102,15 +101,15 @@ class AddListing:
             threads.append(thread)
             thread.start()
 
-        # Wait for all threads to finish
         for thread in threads:
             thread.join()
 
-        # Add uploaded image data to the main data dictionary
         for index in results:
             data.update(results[index])
 
         response = requests.post(self.url, headers=self.headers, files=data)
+        log_user_action(user, 'მაიჰოუმიდან დაბრუნებული რესპონსი',
+                        details=f'რესპონსი: {response.json()}, Session ID: {session_id}', session_id=session_id)
 
         try:
             return {"myhome":response.status_code, "ss": ssresponse}

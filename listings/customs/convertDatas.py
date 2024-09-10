@@ -54,21 +54,15 @@ class TypeMapper:
 
             while attempt < retries:
                 try:
-                    print(f"Attempt {attempt + 1} for search_param: {search_param}")
-                    print("7777777777777777777")
                     time.sleep(1.5)
                     response = requests.get(url, params=params, timeout=timeout)
-                    print("8888888888888888888")
                     response.raise_for_status()
                     return response.json()  # Get the JSON response
                 except requests.exceptions.Timeout:
-                    print(f"Timeout after {timeout} seconds, retrying...")
                     attempt += 1
                 except requests.exceptions.RequestException as e:
-                    print(f"Error fetching data for '{search_param}': {e}")
                     return []  # Return empty list in case of other request issues
 
-            print(f"Failed to fetch data for '{search_param}' after {retries} attempts.")
             return []  # Return empty list if all attempts fail
 
         # Split the search parameter by spaces and take the longest word
@@ -88,8 +82,6 @@ class TypeMapper:
 
         # Filter the results based on urbanId and return them
         filtered = [item for item in new if item.get('subDistrictId') == urbanId]
-        print(filtered[0])
-        print("-------------------------------------------")
         return filtered[0]['streetId'] if filtered else {"message": "No matches found for the given urbanId."}
 
 

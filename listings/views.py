@@ -1,55 +1,13 @@
-import time
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-import re
-# from .customs.getListings import startBot
-# from .customs.getInsideData import scrape_property_info
+
+from .customs.logCreator import log_user_action
 from .customs.main import upload
 from .customs.ss.main import UploadOnSS
 from .models import Listing
-# from .customs.addListing import upload_listing_for_sale
-#
-# class StartBotApi(APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     def post(self, request):
-#
-#         try:
-#             user = request.user
-#             listing_data = request.data
-#             token = listing_data.get('token')
-#
-#             if not token:
-#                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
-#             if user.botStatus is True:
-#                 return Response({'message': 'Bot is already running.'}, status=400)
-#             user.botStatus = True
-#             user.save()
-#             startBot(token, user)
-#             return Response({'message': 'Bot is running.'}, status=200)
-#         except Exception as e:
-#             print(e)
-#             return Response({'message': 'Something went wrong.'}, status=400)
-#
-# class EndBot(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def post(self, request):
-#         user = request.user
-#         user.botStatus = False
-#         user.save()
-#
-#         return Response({'message': 'ბოტი გამოირთო'}, status=201)
-#
-#
-# class GetBotStatus(APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     def post(self, request):
-#         user = request.user
-#
-#         return Response(data={'status': user.botStatus}, status=200)
+
+import uuid
 
 
 class GetAllListings(APIView):
@@ -90,6 +48,7 @@ class DeleteAllListings(APIView):
 
         return Response({'message': 'All listings deleted successfully'}, status=200)
 
+
 class MyHomeListing(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -100,13 +59,14 @@ class MyHomeListing(APIView):
             token = listing_data.get('token')
             urls = listing_data.get('url')
             sstoken = listing_data.get('sstoken')
+            session_id = uuid.uuid4()
+
+            log_user_action(user, 'დაიწყო ლისტინგის დადება', details=f'Token: {token}, URLs: {urls}, Session ID: {session_id}', session_id=session_id)
 
             if not sstoken:
                 sstoken = None
-
             if not token:
                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
-
             if not urls:
                 return Response({'error': 'შეიყვანე აიდი'}, status=402)
 
@@ -117,15 +77,14 @@ class MyHomeListing(APIView):
                 if Listing.objects.filter(listing_id=url, users=user).exists():
                     return Response({"msg": f"განცხადება {url} აიდით უკვე დევს"}, status=400)
 
-            result = upload(urls, token, user, sstoken)
+            result = upload(urls, token, user, sstoken, session_id)
+
+            log_user_action(user, 'Completed listing upload', details=f'Uploaded URLs: {urls}, Session ID: {session_id}', session_id=session_id)
 
             return Response({'message': result}, status=200)
 
         except Exception as e:
-            print(e)
             return Response({'message': 'Something went wrong.'}, status=400)
-
-
 
 
 class SSListing(APIView):
@@ -137,7 +96,6 @@ class SSListing(APIView):
             listing_data = request.data
             token = listing_data.get('token')
             urls = listing_data.get('url')
-
 
             if not token:
                 return Response({'error': 'შეიყვანე ტოკენი'}, status=402)
@@ -157,5 +115,4 @@ class SSListing(APIView):
             return Response({'message': result}, status=200)
 
         except Exception as e:
-            print(e)
             return Response({'message': 'Something went wrong.'}, status=400)

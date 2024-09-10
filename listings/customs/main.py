@@ -6,10 +6,10 @@ from django.db import transaction
 from .getListingData import UrlFetcher
 from .formatData import FormatData
 from .uploadListing import AddListing
-from .uploadOnBoth import fromMyhomeToSS
+from .logCreator import log_user_action
 
 
-def upload(ids, token, user, sstoken):
+def upload(ids, token, user, sstoken, session_id):
     result = []
     successful_uploads = 0
     failed_uploads = []
@@ -29,13 +29,15 @@ def upload(ids, token, user, sstoken):
                 data, decoded_payload_json.get('data').get('phone'),
                 decoded_payload_json.get('data').get('user_name')
             )
-            # print(convertedData)
+
+            log_user_action(user, 'მაიჰოუმის კონვერტირებული დატა',
+                            details=f'Listing ID: {singleId}, Data: {convertedData}, Session ID: {session_id}', session_id=session_id)
 
             uploader = AddListing()
             uploader.setHeaders(token)
 
 
-            response = uploader.data(convertedData, sstoken)
+            response = uploader.data(convertedData, sstoken, user, session_id)
 
 
             if response['myhome'] == 200 and response['ss'] == 200 and sstoken:
@@ -67,5 +69,6 @@ def upload(ids, token, user, sstoken):
         user.total_listings += successful_uploads
         user.failed_listings_myhome.extend(failed_uploads)
         user.save()
+    log_user_action(user, 'განცხადებების დადება გავიდა ბოლოში', details=f'Success: {successful_uploads}, Failed: {failed_uploads}, Session ID: {session_id}', session_id=session_id)
 
     return result

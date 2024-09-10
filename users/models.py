@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
-
+from django.utils import timezone
+import uuid
 
 class MyUserManager(BaseUserManager):
     def create_user(self, phone_number, password=None):
@@ -46,6 +47,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.phone_number
 
 
+class UserActionLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='logs')
+    action = models.CharField(max_length=255)
+    details = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    session_id = models.UUIDField(default=uuid.uuid4, editable=False)  # Unique session ID for each request
 
+    def __str__(self):
+        return f'{self.user} - {self.action} at {self.timestamp}'
 
 

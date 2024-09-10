@@ -1,25 +1,17 @@
 import json
 
-from .ss.ImageConverter import ImageConverter
+from .logCreator import log_user_action
 from .ss.PaidServiceAPI import PaidServiceAPI
 from .ss.RealEstateDraftCreator import RealEstateClient
 from .ss.deleteDraft import DeleteDraft
 from .convertDatas import TypeMapper
 from .ss.main import uploadImagesSS
-from .ss.ssImage import ImageUploader
 
 
-def fromMyhomeToSS(convertedData, sstoken, image_urls):
+def fromMyhomeToSS(convertedData, sstoken, image_urls, user, session_id):
     try:
 
         mapper = TypeMapper()
-        print(convertedData['street_id'])
-        print(convertedData['ka[address]'])
-
-
-
-
-
         application_data1 = {
             "application": {
                 "userType": "Individual",
@@ -44,7 +36,6 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
                 "unitPriceUsd": 11,
                 "balconyLoggia": 412,
                 "status": mapper.status(convertedData["status_id"]),
-                # "airConditioning": mapper.attribute_id_mapping(),
                 "hasRemoteViewing": False,
                 "isForUkraine": False,
                 "isPetFriendly": False,
@@ -55,7 +46,6 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
                 "descriptionRu": convertedData['ru[comment]'],
 
                 "commercialRealEstateType": 0,
-                # "kitchenArea": "20",
                 "contactPerson": convertedData['ka[owner_name]'],
 
                 "project": mapper.project_type_id(convertedData['project_type_id']),
@@ -63,7 +53,6 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
                 "rooms": convertedData['room_type_id'],
 
                 "totalArea": convertedData['area'],
-                # "subDistrictId": mapper.urban_id(convertedData['urban_id']),
                 "floor": convertedData['floor'],
                 "floors": convertedData['total_floors'],
             },
@@ -72,33 +61,20 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
         if mapper.street_id(convertedData['street_id']) is not None:
             application_data1['application']['streetId'] = mapper.street_id(convertedData['street_id'])
         else:
-            print("movida aqana")
             plz = mapper.fetch_search_results(convertedData['ka[address]'], 'ka', mapper.urban_id(convertedData['urban_id']))
-            print("oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
-            print(plz)
-            print("shiggggg")
+
             if plz != "No matches found for the given urbanId.":
-                print("movida aqanacccccc")
                 application_data1['application']['streetId'] = plz
-                print("shig hoargaq")
 
-
-
-        print("vaxxxxxxxxxxx")
         if convertedData['bedroom_type_id'] is None or convertedData['bedroom_type_id'] == "None":
-            print("vaxxxxxxxxxxx")
             application_data1['application']['bedrooms'] = 0
-            print(1)
         else:
             application_data1['application']['bedrooms'] = convertedData['bedroom_type_id']
-            print(2)
 
         if convertedData['bathroom_type_id'] is None or convertedData['bathroom_type_id'] == "None":
             application_data1['application']['toilet'] = 1
-            print(3)
         else:
             application_data1['application']['toilet'] = convertedData['bathroom_type_id']
-            print(4)
 
         delte = DeleteDraft(sstoken)
         delte.delete_draft()
@@ -122,7 +98,7 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
                 application_data1['application'].update(new_element_dict)
 
         api_client = RealEstateClient(sstoken)
-        applicationIdDr = api_client.create_draft(application_data1['application'])
+        applicationIdDr = api_client.create_draft(application_data1['application'], user, session_id)
         application_data1['paidServices'] = {
             "isCreate": True,
             "items": [
@@ -142,7 +118,11 @@ def fromMyhomeToSS(convertedData, sstoken, image_urls):
         application_data1['application']['realEstateApplicationId'] = applicationIdDr['applicationId']
 
         api = PaidServiceAPI(sstoken)
-        ssResponse = api.create_application(application_data1)
+
+        log_user_action(user, 'სს-ის აფლოუდზე გატანებული დატა',
+                        details=f'დატა: {application_data1}, Session ID: {session_id}', session_id=session_id)
+        ssResponse = api.create_application(application_data1, user)
+
         return ssResponse
     except Exception as e:
         print(e)

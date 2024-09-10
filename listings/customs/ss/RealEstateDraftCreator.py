@@ -1,5 +1,7 @@
 import requests
 
+from listings.customs.logCreator import log_user_action
+
 
 class RealEstateClient:
     def __init__(self, token):
@@ -21,11 +23,13 @@ class RealEstateClient:
             "Referrer-Policy": "strict-origin-when-cross-origin"
         }
 
-    def create_draft(self,data):
+    def create_draft(self,data, user, session_id):
         url = f"{self.base_url}/v1/RealEstate/create-draft"
 
         response = requests.post(url, headers=self.headers, json=data)
         print(response.status_code)
+        log_user_action(user, 'სს-ის დრაფტის რესპონსი',
+                        details=f'სტატუს კოდი: {response.status_code}, დატა: {response.json()}, Session ID: {session_id}', session_id=session_id)
 
         if response.status_code == 200:
             return response.json()
